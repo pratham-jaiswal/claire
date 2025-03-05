@@ -72,7 +72,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
         ```py
         user_input = listen()
         ```
-- You can modify the code to use a different OpenAI model.
+- You can modify the code to use a different OpenAI model. ([Guide](https://platform.openai.com/docs/models))
     ```py
     llm = ChatOpenAI(
             model="gpt-4o",
@@ -80,7 +80,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
         )
     ```
     
-    > **Note**: If the budget allows, I'll highly recommended to utilize GPT-4o or a more advanced model. While GPT-4o mini offers decent performance, GPT-4o provides enhanced capabilities and more accurate responses, which significantly improve the quality of interactions.
+    > **Note**: If the budget allows, I'll highly recommended to utilize GPT-4o or a more advanced model. While GPT-4o mini offers decent performance, GPT-4o provides enhanced capabilities and more accurate responses, which significantly improve the quality of interactions. [Pricing guide](https://platform.openai.com/docs/pricing).
 - You can modify the code to use a different voices, models, and audio formats. ([Guide](https://platform.openai.com/docs/guides/text-to-speech))
     ```py
     spoken_response = client.audio.speech.create(
