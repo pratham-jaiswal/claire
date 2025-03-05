@@ -46,6 +46,8 @@ Claire is an agentic AI designed for engaging conversations and performing a var
     NEWS_API_KEY=YOUR_NEWS_API_KEY
     ```
 
+Note: All the API keys required, are free or has a free tier.
+
 ### Setup
 
 - Clone the repository
