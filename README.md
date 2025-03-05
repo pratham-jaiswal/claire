@@ -34,7 +34,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
 
 ### Prerequisites (Python 3.13.1)
 
-- API keys for [Tavily](https://app.tavily.com/home), [Amadeus](https://developers.amadeus.com/get-started/get-started-with-self-service-apis-335), [OpenWeatherMap](https://openweathermap.org/api), and [NewsAPI](https://newsapi.org/register)
+- API keys for [OpenAI](https://platform.openai.com/api-keys), [Tavily](https://app.tavily.com/home), [Amadeus](https://developers.amadeus.com/get-started/get-started-with-self-service-apis-335), [OpenWeatherMap](https://openweathermap.org/api), and [NewsAPI](https://newsapi.org/register)
 - Store the API Keys in a `.env` file as shown below
 
     ```.env
@@ -46,7 +46,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
     NEWS_API_KEY=YOUR_NEWS_API_KEY
     ```
 
-Note: All the API keys required, are free or has a free tier.
+> **Note:** All the API keys required, apart from OpenAI, have a free tier.
 
 ### Setup
 
