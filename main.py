@@ -82,7 +82,7 @@ def speak(text):
     sd.play(data, samplerate)
     sd.wait()
 
-def listen():
+def listen(claire_output_type):
     """Capture voice input and return recognized text."""
     while True: 
         with sr.Microphone() as source:
@@ -92,11 +92,17 @@ def listen():
             try:
                 return recognizer.recognize_google(audio)
             except sr.UnknownValueError:
-                speak("Sorry, I didn't catch that.")
-                sd.wait()
+                if claire_output_type == 1:
+                    speak("Sorry, I didn't catch that.")
+                    sd.wait()
+                elif claire_output_type == 2:
+                    print("Claire: Sorry, I didn't catch that.")
             except sr.RequestError:
-                speak("Speech recognition service is unavailable.")
-                sd.wait()
+                if claire_output_type == 1:
+                    speak("Speech recognition service is unavailable.")
+                    sd.wait()
+                elif claire_output_type == 2:
+                    print("Claire: Speech recognition service is unavailable.")
 
 def get_time_date() -> str:
     """Returns the current date and time as a string, formatted as a sentence.
@@ -341,10 +347,29 @@ system_prompt = SystemMessage(content="""
 
 def chat_with_claire():
     history = [system_prompt]
-    print("**Claire is ready to chat!**")
+
+    while True:
+        print("Enter\n1. Text\n2. Voice")
+        input_type = input("Your choice: ")
+        if input_type in ["1", "2"]:
+            break
+        print("Invalid choice.\n\n")
+
+    while True:
+        print("Enter\n1. Claire Speaks and Texts\n2. Claire only Texts")
+        claire_output_type = input("Your choice: ")
+        if input_type in ["1", "2"]:
+            break
+        print("Invalid choice.\n\n")
+    
+    print("\n\n**Claire is ready to chat!**\n\n")
     
     while True:
-        user_input = input()
+        if input_type == "1":
+            user_input = input()
+        elif input_type == "2":
+            user_input = listen(claire_output_type=claire_output_type)
+        
         print(f"You said: {user_input}")
 
         human_prompt = HumanMessage(content=user_input)
@@ -354,10 +379,12 @@ def chat_with_claire():
 
         chunk_buffer = []
         response_text = agent.invoke({"messages": history})["messages"][-1].content
-        
-        print(response_text)
-        speak(response_text)
-        sd.wait()
+
+        if claire_output_type == "1":
+            speak(response_text)
+            sd.wait()
+        elif claire_output_type == "2":
+            print(f"Claire: {response_text}")
         
         time.sleep(1)
 
