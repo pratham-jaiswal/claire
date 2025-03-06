@@ -1,6 +1,6 @@
 # Contributing to Claire
 
-First off, thank you for considering contributing to Anifuri.
+First off, thank you for considering contributing to Calire.
 
 ## Where do I go from here?
 
