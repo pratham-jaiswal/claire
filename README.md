@@ -64,16 +64,8 @@ Claire is an agentic AI designed for engaging conversations and performing a var
     ```
     python main.py
     ```
-- You can modify the code to accept voice commands or text input.
-    - For Text Input:
-        ```py
-        user_input = input()
-        ```
-
-    - For Voice Input:
-        ```py
-        user_input = listen()
-        ```
+- You can choose to give voice or text input.
+- You can choose to receive voice and text or just text output.
 - You can modify the code to use a different OpenAI model. ([Guide](https://platform.openai.com/docs/models))
     ```py
     llm = ChatOpenAI(
@@ -86,7 +78,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
 - You can modify the code to use a different voices, models, and audio formats. ([Guide](https://platform.openai.com/docs/guides/text-to-speech))
     ```py
     spoken_response = client.audio.speech.create(
-            model="tts-1-hd",
+            model="tts-1-hd", # HD costs more than standard
             voice="alloy",
             response_format="mp3",
             input=text
