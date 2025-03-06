@@ -2,6 +2,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, AIMe
 from langchain_community.tools.amadeus.closest_airport import AmadeusClosestAirport
 from langchain_community.tools.amadeus.flight_search import AmadeusFlightSearch
 from langchain_community.agent_toolkits.amadeus.toolkit import AmadeusToolkit
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langgraph.prebuilt import create_react_agent
@@ -323,8 +324,6 @@ tools = [get_current_location,
         get_news, 
         get_joke] + amadeus_tools + weather_tool
 
-agent = create_react_agent(llm, tools)
-
 system_prompt = SystemMessage(content="""
     You are Claire.
     You are a chatty and friendly person.
@@ -345,8 +344,12 @@ system_prompt = SystemMessage(content="""
     - You don't try to give images in markdown.
     """)
 
+agent = create_react_agent(llm, tools, state_modifier=ChatPromptTemplate([
+                                                        system_prompt, 
+                                                        MessagesPlaceholder("messages")]))
+
 def chat_with_claire():
-    history = [system_prompt]
+    history = []
 
     while True:
         print("Enter\n1. Text\n2. Voice")
@@ -356,7 +359,7 @@ def chat_with_claire():
         print("Invalid choice.\n\n")
 
     while True:
-        print("Enter\n1. Claire Speaks and Texts\n2. Claire only Texts")
+        print("\n\nEnter\n1. Claire Speaks and Texts\n2. Claire only Texts")
         claire_output_type = input("Your choice: ")
         if input_type in ["1", "2"]:
             break
@@ -366,19 +369,24 @@ def chat_with_claire():
     
     while True:
         if input_type == "1":
-            user_input = input()
+            user_input = input("You: ")
         elif input_type == "2":
             user_input = listen(claire_output_type=claire_output_type)
         
-        print(f"You said: {user_input}")
+        if input_type == "2":
+            print(f"You: {user_input}")
 
         human_prompt = HumanMessage(content=user_input)
         history.append(human_prompt)
 
+        inputs = {
+            "messages": history
+        }
+
         response_text = ""
 
         chunk_buffer = []
-        response_text = agent.invoke({"messages": history})["messages"][-1].content
+        response_text = agent.invoke(inputs)["messages"][-1].content
 
         if claire_output_type == "1":
             speak(response_text)
