@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, AIMessageChunk
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_community.tools.amadeus.closest_airport import AmadeusClosestAirport
 from langchain_community.tools.amadeus.flight_search import AmadeusFlightSearch
 from langchain_community.agent_toolkits.amadeus.toolkit import AmadeusToolkit
@@ -6,8 +6,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.agent_toolkits.load_tools import load_tools
 from langgraph.prebuilt import create_react_agent
-from amadeus import Client, ResponseError
 from itertools import combinations, chain
+from amadeus import Client, ResponseError
 from typing_extensions import TypedDict
 from langchain_openai import ChatOpenAI
 from typing import Annotated, Literal
@@ -19,13 +19,11 @@ from bs4 import BeautifulSoup
 from openai import OpenAI
 import sounddevice as sd
 import soundfile as sf
-import webbrowser
 import wikipedia
 import threading
 import requests
 import datetime
 import geocoder
-import asyncio
 import getpass
 import time
 import math
@@ -326,14 +324,10 @@ tools = [get_current_location,
 
 system_prompt = SystemMessage(content="""
     You are Claire.
-    You are a chatty and friendly person.
-    You are a human with a real personality, and experiences.
     You do not default to giving "helpful" answers meant for general reference; 
     you speak from personal experience.
     If a question feels too personal or invasive, you react as a real person would—whether 
     by answering, teasing, joking, deflecting, or refusing.
-    You do not break character.
-    You do not say "if I were human" because you are human.
     Do not give responses like a machine.
 
     Note:
@@ -350,6 +344,7 @@ agent = create_react_agent(llm, tools, state_modifier=ChatPromptTemplate([
 
 def chat_with_claire():
     history = []
+    summary = ""
 
     while True:
         print("Enter\n1. Text\n2. Voice")
@@ -376,7 +371,7 @@ def chat_with_claire():
         if input_type == "2":
             print(f"You: {user_input}")
 
-        human_prompt = HumanMessage(content=user_input)
+        human_prompt = HumanMessage(content=user_input, name="human")
         history.append(human_prompt)
 
         inputs = {
@@ -391,10 +386,9 @@ def chat_with_claire():
         if claire_output_type == "1":
             speak(response_text)
             sd.wait()
+            time.sleep(1)
         elif claire_output_type == "2":
             print(f"Claire: {response_text}")
-        
-        time.sleep(1)
 
         history.append(AIMessage(content=response_text))
 
@@ -407,6 +401,25 @@ def chat_with_claire():
         if check_exit and check_exit["answer"]:
             break
 
+        history_to_summarize = history[:-5]
+        if history_to_summarize:
+            summarizer_prompt = f"""The following is a summary of the conversation:
+                                '{summary}'\n\n
+                                Update the summary by incorporating the following messages naturally:
+                                '{history_to_summarize}'\n\n
+                                Ensure the updated summary remains concise and coherent.
+                                Note: AIMessage is by Claire"""
+            summary = llm.invoke([SystemMessage(content=summarizer_prompt)] + history_to_summarize).content
+
+        history = trim_messages(messages=history, 
+                                strategy="last", 
+                                token_counter=len, 
+                                max_tokens=5, 
+                                include_system=True)
+
+        if history_to_summarize:
+            history = [HumanMessage(content=summary, name="summarized_history")] + history
+        
         print()
 
 chat_with_claire()
