@@ -30,6 +30,7 @@ import math
 import sys
 import os
 import io
+import re
 
 load_dotenv()
 
@@ -102,6 +103,36 @@ def listen(claire_output_type):
                     sd.wait()
                 elif claire_output_type == 2:
                     print("Claire: Speech recognition service is unavailable.")
+
+def word_frequency_count(text: str) -> dict[str, int]:
+    """Count the frequency of each word (not letters) in a given text.
+    Note: This function is does not count the frequency of letters, it counts the frequency of words separated by spaces.
+
+    Args:
+        text (str): The text to count the frequency of words in.
+
+    Returns:
+        dict[str, int]: A dictionary where each key is a word and each value is the frequency of that word in the text.
+    """
+    words = [word.lower() for word in text.split()]
+    word_freq = {}
+    for word in words:
+        word_freq[word] = word_freq.get(word, 0) + 1
+    return word_freq
+
+def char_frequency_count(text: str) -> dict[str, int]:
+    """Count the frequency of each character/letter in a given text.
+
+    Args:
+        text (str): The text to count the frequency of characters/letters in.
+
+    Returns:
+        dict[str, int]: A dictionary where keys are characters/letters and values are their frequencies.
+    """
+    char_freq = {}
+    for char in text.lower():
+        char_freq[char] = char_freq.get(char, 0) + 1
+    return char_freq
 
 def get_time_date() -> str:
     """Returns the current date and time as a string, formatted as a sentence.
@@ -312,7 +343,9 @@ amadeus_tools = amadeus_toolkit.get_tools()
 
 weather_tool = load_tools(["openweathermap-api"])
 
-tools = [get_current_location,  
+tools = [word_frequency_count, 
+        char_frequency_count,
+        get_current_location,  
         get_time_date, 
         set_reminder, 
         wiki_lookup, 
