@@ -14,6 +14,7 @@ Claire is an agentic AI designed for engaging conversations and performing a var
 - **Math Calculations**: Evaluates mathematical expressions.
 - **Web Search**: Uses Tavily Search for quick information lookup.
 - **Location Services**: Determines user location based on IP.
+- **Frequency Count**: Counts the frequency of words and characters in a text.
 
 ## Technologies Used
 
@@ -96,6 +97,7 @@ Once started, Claire will listen for voice commands or accept text input. Now si
 - `Set a reminder in 30 minutes.` (The code must be running for this to work)
 - `Give me the latest news on technology.`
 - `Who was the founder of reddit and what happend to him?`
+- `How many times does the letter 'o' appear in the word 'pneumonoultramicroscopicsilicovolcanoconiosis'?`
 
 ## Contributing
 
