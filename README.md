@@ -79,9 +79,10 @@ Claire is an agentic AI designed for engaging conversations and performing a var
 - You can modify the code to use a different voices, models, and audio formats. ([Guide](https://platform.openai.com/docs/guides/text-to-speech))
     ```py
     spoken_response = client.audio.speech.create(
-            model="tts-1-hd", # HD costs more than standard
+            model="gpt-4o-mini-tts", # 4o mini tts is costs more than tts-1 and tts-1-hd
             voice="alloy",
             response_format="mp3",
+            instructions="Use a warm and friendly tone", # 'instructions' does not work with 'tts-1' or 'tts-1-hd'.
             input=text
         )
     ```
