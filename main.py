@@ -62,9 +62,9 @@ llm = ChatOpenAI(
 def speak(text):
     """Speak text using text-to-speech."""
     spoken_response = client.audio.speech.create(
-        model="tts-1",
-        voice="sage",
-        response_format="wav",
+        model="tts-1", # options: tts-1, tts-1-hd, and gpt-4o-mini-tts
+        voice="sage", # options: alloy, ash, ballad, coral, echo, fable, onyx, nova, sage, shimmer
+        response_format="wav", # options: mp3, opus, aac, flac, wav, pcm
         input=text
     )
 
