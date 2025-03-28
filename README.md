@@ -1,6 +1,6 @@
 # Claire - The AI Assistant
 
-Claire is a conversational AI that uses semantic persistent memory to efficiently complete a wide range of tasks. It is designed to engage users in natural-sounding conversations.
+Claire is a conversational AI that uses persistent semantic memory to efficiently complete a wide range of tasks. It is designed to engage users in natural-sounding conversations.
 
 ## Features
 
