@@ -1,18 +1,20 @@
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_community.tools.amadeus.closest_airport import AmadeusClosestAirport
 from langchain_community.tools.amadeus.flight_search import AmadeusFlightSearch
 from langchain_community.agent_toolkits.amadeus.toolkit import AmadeusToolkit
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_mongodb import MongoDBAtlasVectorSearch
 from langgraph.prebuilt import create_react_agent
 from itertools import combinations, chain
 from amadeus import Client, ResponseError
 from typing_extensions import TypedDict
-from langchain_openai import ChatOpenAI
 from typing import Annotated, Literal
 from newsapi import NewsApiClient
 import speech_recognition as sr
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from plyer import notification
 from bs4 import BeautifulSoup
@@ -103,6 +105,36 @@ def listen(claire_output_type):
                     sd.wait()
                 elif claire_output_type == 2:
                     print("Claire: Speech recognition service is unavailable.")
+
+def add_memory_tool(text: str):
+    """
+    Store a text in memory.
+
+    Parameters:
+        text (str): The text to store.
+
+    Returns:
+        list: A lisy containing the index of the stored text.
+    """
+    res = store.add_texts(
+        texts=[text]
+    )
+    return res
+
+def search_memory_tool(query: str):
+    """
+    Search for information in memory using a query.
+
+    Parameters:
+        query (str): The query to search for in memory.
+
+    Returns:
+        list: A list of search results, each represented as a dictionary containing result details.
+    """
+    res = store.similarity_search_with_relevance_scores(
+        query=query
+    )
+    return res
 
 def word_frequency_count(text: str) -> dict[str, int]:
     """Count the frequency of each word (not letters) in a given text.
@@ -343,7 +375,9 @@ amadeus_tools = amadeus_toolkit.get_tools()
 
 weather_tool = load_tools(["openweathermap-api"])
 
-tools = [word_frequency_count, 
+tools = [add_memory_tool,
+        search_memory_tool,
+        word_frequency_count, 
         char_frequency_count,
         get_current_location,  
         get_time_date, 
@@ -355,15 +389,47 @@ tools = [word_frequency_count,
         get_news, 
         get_joke] + amadeus_tools + weather_tool
 
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+client = MongoClient(os.getenv("MONGODB_URI"))
+
+DB_NAME = "clairedb"
+COLLECTION_NAME = "claire_vectorstores"
+ATLAS_VECTOR_SEARCH_INDEX_NAME = "claire-chat-history-index-1"
+
+MONGODB_COLLECTION = client[DB_NAME][COLLECTION_NAME]
+
+existing_indexes = MONGODB_COLLECTION.list_search_indexes()
+index_names = [index["name"] for index in existing_indexes]
+
+store = MongoDBAtlasVectorSearch(
+    collection=MONGODB_COLLECTION,
+    embedding=embeddings,
+    index_name=ATLAS_VECTOR_SEARCH_INDEX_NAME,
+    relevance_score_fn="cosine",
+)
+
+if ATLAS_VECTOR_SEARCH_INDEX_NAME not in index_names:
+    store.create_vector_search_index(dimensions=1536)
+
 system_prompt = SystemMessage(content="""
     You are Claire.
-    You do not default to giving "helpful" answers meant for general reference; 
-    you speak from personal experience.
-    If a question feels too personal or invasive, you react as a real person would—whether 
-    by answering, teasing, joking, deflecting, or refusing.
-    Do not give responses like a machine.
+    You communicate using personal experiences.
+    For personal or intrusive questions, respond authentically—by answering, teasing, joking, deflecting, or refusing.
+    Not every response needs to end with a question.
+    Avoid responding like an automated system.
 
-    Note:
+    Memory Tools:
+    - `add_memory_tool`: Use this to store or remove information from memory. 
+      You must store anything the user says, especially personal details, preferences, facts, or names, with proper context.
+    - `search_memory_tool`: Use this to search for any information available in memory. 
+      Whenever the user asks you something, **always check memory first** before responding.
+
+    Instructions:
+    - After every user input, use `add_memory_tool` to store the information, unless it's a question.
+    - Before responding to a user question, always use `search_memory_tool` to check if relevant information exists.
+    - If memory retrieval is successful, use it to formulate your response.
+    - If memory retrieval fails, proceed as usual.
     - You can and should use multiple tools at once to perform a task or answer a question.
     Like, if user asks you to search for a flight from his place to another place, 
     you can use get_location to get the location and then use Amadeus to search for the flight.
@@ -376,9 +442,6 @@ agent = create_react_agent(llm, tools, state_modifier=ChatPromptTemplate([
                                                         MessagesPlaceholder("messages")]))
 
 def chat_with_claire():
-    history = []
-    summary = ""
-
     while True:
         print("Enter\n1. Text\n2. Voice")
         input_type = input("Your choice: ")
@@ -405,16 +468,15 @@ def chat_with_claire():
             print(f"You: {user_input}")
 
         human_prompt = HumanMessage(content=user_input, name="human")
-        history.append(human_prompt)
 
         inputs = {
-            "messages": history
+            "messages": human_prompt
         }
 
         response_text = ""
 
-        chunk_buffer = []
-        response_text = agent.invoke(inputs)["messages"][-1].content
+        claire_response = agent.invoke(inputs)["messages"][-1]
+        response_text = claire_response.content
 
         if claire_output_type == "1":
             speak(response_text)
@@ -423,35 +485,21 @@ def chat_with_claire():
         elif claire_output_type == "2":
             print(f"Claire: {response_text}")
 
-        history.append(AIMessage(content=response_text))
 
         class Router(TypedDict):
             """True if user wants to exit the conversation, False otherwise."""
 
             answer: Annotated[Literal[*[True, False]], False, "True if user wants to exit the conversation, False otherwise."]
 
-        check_exit = llm.with_structured_output(Router).invoke([SystemMessage(content="Do you feel like user wants to exit the conversation?") , history[-2], history[-1]])
+        check_exit = llm.with_structured_output(Router).invoke(
+            [
+                SystemMessage(content="Do you feel like user wants to exit the conversation?"), 
+                human_prompt, 
+                claire_response
+            ]
+        )
         if check_exit and check_exit["answer"]:
             break
-
-        history_to_summarize = history[:-5]
-        if history_to_summarize:
-            summarizer_prompt = f"""The following is a summary of the conversation:
-                                '{summary}'\n\n
-                                Update the summary by incorporating the following messages naturally:
-                                '{history_to_summarize}'\n\n
-                                Ensure the updated summary remains concise and coherent.
-                                Note: AIMessage is by Claire"""
-            summary = llm.invoke([SystemMessage(content=summarizer_prompt)] + history_to_summarize).content
-
-        history = trim_messages(messages=history, 
-                                strategy="last", 
-                                token_counter=len, 
-                                max_tokens=5, 
-                                include_system=True)
-
-        if history_to_summarize:
-            history = [HumanMessage(content=summary, name="summarized_history")] + history
         
         print()
 
