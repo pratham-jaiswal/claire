@@ -2,11 +2,13 @@ amadeus==11.0.0
 beautifulsoup4==4.13.3
 geocoder==1.38.1
 langchain==0.3.20
-langchain-community==0.3.19
-langchain-core==0.3.41
+langchain-community==0.3.20
+langchain-core==0.3.49
 langchain-experimental==0.3.4
-langchain-openai==0.2.14
-langgraph==0.3.2
+langchain-mongodb==0.6.0
+langchain-openai==0.3.11
+langgraph==0.3.21
+langmem==0.0.17
 newsapi-python==0.2.7
 openai==1.68.2
 plyer==2.1.0
@@ -14,6 +16,7 @@ PyAudio==0.2.14
 pydantic==2.10.6
 pydantic-settings==2.8.1
 pydantic_core==2.27.2
+pymongo==4.11.3
 pyowm==3.3.0
 python-dotenv==1.0.1
 requests==2.32.3
