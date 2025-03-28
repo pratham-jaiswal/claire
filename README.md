@@ -1,6 +1,6 @@
 # Claire - The AI Assistant
 
-Claire is an agentic AI designed for engaging conversations and performing a variety of tasks efficiently.
+Claire is a conversational AI that uses semantic persistent memory to efficiently complete a wide range of tasks. It is designed to engage users in natural-sounding conversations.
 
 ## Features
 
