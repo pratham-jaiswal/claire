@@ -1,3 +1,6 @@
+[![Read on Medium](https://img.shields.io/badge/Read_on-Medium-black?logo=medium&style=for-the-badge)](https://medium.com/@pratham52/heres-how-to-add-semantic-memory-to-ai-agents-f066b74de888)
+
+
 # Claire - The AI Assistant
 
 Claire is a agentic AI that features persistent semantic memory, allowing it to maintain context across interactions. It engages users in natural-sounding conversations by leveraging large language models. Additionally, Claire can perform certain tasks with the set of tools it has been provided with.
