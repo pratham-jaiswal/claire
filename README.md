@@ -127,3 +127,5 @@ Once started, Claire will listen for voice commands or accept text input. Now si
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/pratham-jaiswal/claire/blob/main/CONTRIBUTING.md) for the process of submitting pull requests to us.
+
+<!-- GitAds-Verify: 5GA61D76OFJQ15MFVIPMR13QPLE2SP3I -->
