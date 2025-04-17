@@ -1,5 +1,5 @@
 [![Read on Medium](https://img.shields.io/badge/Read_on-Medium-black?logo=medium&style=for-the-badge)](https://medium.com/@pratham52/heres-how-to-add-semantic-memory-to-ai-agents-f066b74de888)
-
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-support-yellow?logo=buy-me-a-coffee&style=for-the-badge)](https://buymeacoffee.com/maxxdevs)
 
 # Claire - The AI Assistant
 
