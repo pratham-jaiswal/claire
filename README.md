@@ -1,4 +1,4 @@
-[![Read on Medium](https://img.shields.io/badge/Read_on-Medium-black?logo=medium&style=for-the-badge)](https://medium.com/@pratham52/heres-how-to-add-semantic-memory-to-ai-agents-f066b74de888)
+[![Read on Medium](https://img.shields.io/badge/Read_on-Medium-black?logo=medium&style=for-the-badge)](https://medium.com/gitconnected/heres-how-to-add-semantic-memory-to-ai-agents-06b85337902c)
 
 # Claire - The AI Assistant
 
