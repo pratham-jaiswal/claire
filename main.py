@@ -8,6 +8,7 @@ from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_mongodb import MongoDBAtlasVectorSearch
 from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.memory import MemorySaver
 from itertools import combinations, chain
 from amadeus import Client, ResponseError
 from typing_extensions import TypedDict
@@ -360,6 +361,23 @@ def get_joke(category: Literal[*joke_categories] = "Any"):
     
     return "Failed to retrieve a joke."
 
+def web_search_preview(query: str):
+    """
+    This tool is used to perform a web search using gpt-4o-mini-search-preview.
+
+    Args:
+        query (str): The search term or query string to look up.
+
+    Returns:
+        str: A text preview of the search results.
+    """
+    search_llm = ChatOpenAI(
+        model="gpt-4o-mini-search-preview"
+    )
+
+    return search_llm.invoke(query).content
+
+
 tavily = TavilySearchResults(
         max_results=1,
         search_depth="basic",
@@ -382,7 +400,8 @@ tools = [add_memory_tool,
         get_current_location,  
         get_time_date, 
         set_reminder, 
-        wiki_lookup, 
+        wiki_lookup,
+        web_search_preview,
         tavily, 
         calculate, 
         trivia, 
@@ -395,7 +414,7 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 
 DB_NAME = "clairedb"
 COLLECTION_NAME = "claire_vectorstores"
-ATLAS_VECTOR_SEARCH_INDEX_NAME = "claire-chat-history-index-1"
+ATLAS_VECTOR_SEARCH_INDEX_NAME = "claire-semantic-index-1"
 
 MONGODB_COLLECTION = client[DB_NAME][COLLECTION_NAME]
 
@@ -437,9 +456,21 @@ system_prompt = SystemMessage(content="""
     - You don't try to give images in markdown.
     """)
 
-agent = create_react_agent(llm, tools, state_modifier=ChatPromptTemplate([
-                                                        system_prompt, 
-                                                        MessagesPlaceholder("messages")]))
+agent = create_react_agent(
+    llm, 
+    tools, 
+    state_modifier=ChatPromptTemplate([
+        system_prompt, 
+        MessagesPlaceholder("messages")
+    ]),
+    checkpointer=MemorySaver()
+)
+
+config = {
+    "configurable": {
+        "thread_id": "claire-chat-history-1"
+    }
+}
 
 def chat_with_claire():
     while True:
@@ -475,7 +506,7 @@ def chat_with_claire():
 
         response_text = ""
 
-        claire_response = agent.invoke(inputs)["messages"][-1]
+        claire_response = agent.invoke(input=inputs, config=config)["messages"][-1]
         response_text = claire_response.content
 
         if claire_output_type == "1":
