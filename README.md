@@ -1,3 +1,5 @@
+[![Read on Medium](https://img.shields.io/badge/Read_on-Medium-black?logo=medium&style=for-the-badge)](https://medium.com/gitconnected/heres-how-to-add-semantic-memory-to-ai-agents-06b85337902c)
+
 # Claire - The AI Assistant
 
 Claire is a agentic AI that features persistent semantic memory, allowing it to maintain context across interactions. It engages users in natural-sounding conversations by leveraging large language models. Additionally, Claire can perform certain tasks with the set of tools it has been provided with.
@@ -127,3 +129,5 @@ Once started, Claire will listen for voice commands or accept text input. Now si
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/pratham-jaiswal/claire/blob/main/CONTRIBUTING.md) for the process of submitting pull requests to us.
+
+<!-- GitAds-Verify: 5GA61D76OFJQ15MFVIPMR13QPLE2SP3I -->
