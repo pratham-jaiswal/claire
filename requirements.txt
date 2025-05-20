@@ -19,7 +19,7 @@ pymongo==4.11.3
 pyowm==3.3.0
 python-dotenv==1.0.1
 requests==2.32.3
-setuptools==75.8.2
+setuptools==78.1.1
 sounddevice==0.5.1
 soundfile==0.13.1
 SpeechRecognition==3.14.1
