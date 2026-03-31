@@ -7,7 +7,7 @@ langchain-core==1.2.22
 langchain-experimental==0.3.4
 langchain-mongodb==0.6.0
 langchain-openai==0.3.11
-langgraph==0.3.21
+langgraph==1.0.10rc1
 newsapi-python==0.2.7
 openai==1.68.2
 plyer==2.1.0
